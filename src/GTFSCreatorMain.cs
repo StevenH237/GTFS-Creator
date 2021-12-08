@@ -25,6 +25,8 @@ namespace Nixill.GTFS
 
       // For now let's just get all the components. I can optimize this later.
       Dictionary<long, Node> nodes = source.Where(x => x.Type == OsmGeoType.Node).ToDictionary(x => x.Id.Value, x => (Node)x);
+      Dictionary<long, Way> ways = source.Where(x => x.Type == OsmGeoType.Way).ToDictionary(x => x.Id.Value, x => (Way)x);
+      Dictionary<long, Relation> relations = source.Where(x => x.Type == OsmGeoType.Relation).ToDictionary(x => x.Id.Value, x => (Relation)x);
     }
   }
 }
