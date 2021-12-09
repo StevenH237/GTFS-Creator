@@ -5,7 +5,7 @@ using System.Linq;
 using OsmSharp;
 using OsmSharp.Streams;
 
-// GTFS Creator: From an OSM-XML output of a transit network and a schedule CSV, 
+// GTFS Creator: From an OSM-XML output of a transit network and a schedule CSV, create most of a valid GTFS file.
 namespace Nixill.GTFS
 {
   public class GTFSCreatorMain
@@ -27,6 +27,9 @@ namespace Nixill.GTFS
       Dictionary<long, Node> nodes = source.Where(x => x.Type == OsmGeoType.Node).ToDictionary(x => x.Id.Value, x => (Node)x);
       Dictionary<long, Way> ways = source.Where(x => x.Type == OsmGeoType.Way).ToDictionary(x => x.Id.Value, x => (Way)x);
       Dictionary<long, Relation> relations = source.Where(x => x.Type == OsmGeoType.Relation).ToDictionary(x => x.Id.Value, x => (Relation)x);
+
+      // Let's start with route shapes
+
     }
   }
 }
