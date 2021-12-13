@@ -10,6 +10,10 @@ namespace Nixill.GTFS
 {
   public class GTFSCreatorMain
   {
+    internal static Dictionary<long, Node> Nodes;
+    internal static Dictionary<long, Way> Ways;
+    internal static Dictionary<long, Relation> Relations;
+
     static void Main(string[] args)
     {
       Console.WriteLine("Welcome to the GTFS creator");
@@ -28,12 +32,12 @@ namespace Nixill.GTFS
       using var source = new XmlOsmStreamSource(stream);
 
       // For now let's just get all the components. I can optimize this later.
-      Dictionary<long, Node> nodes = source.Where(x => x.Type == OsmGeoType.Node).ToDictionary(x => x.Id.Value, x => (Node)x);
-      Dictionary<long, Way> ways = source.Where(x => x.Type == OsmGeoType.Way).ToDictionary(x => x.Id.Value, x => (Way)x);
-      Dictionary<long, Relation> relations = source.Where(x => x.Type == OsmGeoType.Relation).ToDictionary(x => x.Id.Value, x => (Relation)x);
+      Nodes = source.Where(x => x.Type == OsmGeoType.Node).ToDictionary(x => x.Id.Value, x => (Node)x);
+      Ways = source.Where(x => x.Type == OsmGeoType.Way).ToDictionary(x => x.Id.Value, x => (Way)x);
+      Relations = source.Where(x => x.Type == OsmGeoType.Relation).ToDictionary(x => x.Id.Value, x => (Relation)x);
 
       // Let's start with route shapes
-      var routes = relations.Where(x =>
+      var routeMasters = Relations.Where(x =>
       {
         var tags = x.Value.Tags;
         return tags.Try("type") == "route_master" &&
@@ -50,9 +54,18 @@ namespace Nixill.GTFS
       }).Select(x => x.Value);
 
       // Iterate the routes and make their shapes
-      Dictionary<long, Route> routeShapes = new Dictionary<long, Route>();
+      Dictionary<long, RouteShape> routeShapes = new();
 
+      // Also the list of bus stops would be nice too
+      Dictionary<long, BusStop> busStops = new();
 
+      foreach (var rm in routeMasters)
+      {
+        foreach (var rt in rm.Members.Where(x => x.Type == OsmGeoType.Relation).Select(x => Relations[x.Id]))
+        {
+          RouteShape routeShape = new(rt, busStops);
+        }
+      }
     }
   }
 }
